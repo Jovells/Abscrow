@@ -49,6 +49,12 @@ contract Abscrow {
         uint256 purchaseId,
         uint256 totalAmount
     );
+    event Refund(
+        address indexed buyer,
+        address indexed seller,
+        uint256 purchaseId,
+        uint256 totalAmount
+    );
 
     event Release(
         address indexed buyer,
@@ -119,18 +125,13 @@ contract Abscrow {
     }
 
     // Function to purchase a product
- function purchaseProduct(uint256 _totalAmount, address buyer,
-      uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
+ function purchaseProduct(uint256 _totalAmount, address _seller) public {
 
-        try ECedi(ECEDI_ADDRESS).permit(buyer, address(this), value, deadline, v, r, s) {
-        } catch {
-            revert("Invalid signature");
-        }
-
-
-        require(ECedi(ECEDI_ADDRESS).transferFrom(msg.sender, address(this), _totalAmount), "Transfer failed");       
+       ECedi(ECEDI_ADDRESS).transferFrom(msg.sender, address(this), _totalAmount); 
 
         numPurchases++;
+
+        purchases[numPurchases] = Purchase(numPurchases, msg.sender, _seller, _totalAmount, false, false);
         
         // Emit a purchase event
         emit Sale(msg.sender, numPurchases ,_totalAmount);
@@ -138,28 +139,28 @@ contract Abscrow {
 
     // Function to issue a refund
      function release(uint256 _purchaseId) external onlyBuyer(_purchaseId){ 
-        require(purchases[_purchaseId].isReleased, "Funds are already released");
-        require(ECedi(ECEDI_ADDRESS).transfer(purchases[_purchaseId].seller, purchases[_purchaseId].amount), "eCedi transfer failed");
+        require(!purchases[_purchaseId].isReleased, "Funds are already released");
+        ECedi(ECEDI_ADDRESS).transfer(purchases[_purchaseId].seller, purchases[_purchaseId].amount);
         purchases[_purchaseId].isReleased = true;
         emit Release(msg.sender, _purchaseId, purchases[_purchaseId].amount);
     }
 
     function releaseFor(uint256 _purchaseId) external onlyOwner{ 
-        require(purchases[_purchaseId].isReleased, "Funds are already released");
-        require(ECedi(ECEDI_ADDRESS).transfer(purchases[_purchaseId].seller, purchases[_purchaseId].amount), "eCedi transfer failed");
+        require(!purchases[_purchaseId].isReleased, "Funds are already released");
+        ECedi(ECEDI_ADDRESS).transfer(purchases[_purchaseId].seller, purchases[_purchaseId].amount);
         purchases[_purchaseId].isReleased = true;
         emit Release(msg.sender, _purchaseId, purchases[_purchaseId].amount);
     }
 
     function refund(uint256 _purchaseId) external onlyOwner{ 
-        require(purchases[_purchaseId].isReleased, "Funds are already released");
-        require(ECedi(ECEDI_ADDRESS).transfer(purchases[_purchaseId].buyer, purchases[_purchaseId].amount), "eCedi transfer failed");
-        purchases[_purchaseId].isReleased = true;
-        emit Release(msg.sender, _purchaseId, purchases[_purchaseId].amount);
+        require(!purchases[_purchaseId].isReleased, "Funds are already released");
+        ECedi(ECEDI_ADDRESS).transfer(purchases[_purchaseId].buyer, purchases[_purchaseId].amount);
+        emit Refund(msg.sender,  purchases[_purchaseId].seller,  _purchaseId, purchases[_purchaseId].amount);
+        delete purchases[_purchaseId];
     }
 
     function markShipped(uint256 _purchaseId) external onlySeller(_purchaseId){ 
-        require(purchases[_purchaseId].isShipped, "Funds are already released");
+        require(!purchases[_purchaseId].isShipped, "Already shipped");
         purchases[_purchaseId].isShipped = true;
         emit Shipped(msg.sender, _purchaseId, purchases[_purchaseId].amount);
     }
