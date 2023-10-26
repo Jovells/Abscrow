@@ -24,7 +24,6 @@ contract Abscrow {
         bool isShipped;
     }
 
-  
     modifier onlyOwner(){
         require(msg.sender == owner, "Only the Owner can perform this operation");
         _;
