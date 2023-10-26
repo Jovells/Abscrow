@@ -40,10 +40,6 @@ contract Abscrow {
         _;
     }
     
-
-
-
-    // Event to log sales transactions
     event Sale(
         address indexed buyer,
         uint256 purchaseId,
@@ -77,9 +73,9 @@ contract Abscrow {
 
     function getPurchases(uint start, uint end) public view returns (Purchase[] memory) {
         require(start <= end, "Invalid range");
-        if (end > numPurchases) {
-            end = numPurchases;
-        }
+        // if (end > numPurchases) {
+        //     end = numPurchases;
+        // }
         uint length = end - start + 1;
         Purchase[] memory _purchases = new Purchase[](length);
         uint j = 0;
@@ -92,9 +88,7 @@ contract Abscrow {
 
     function getBuyerPurchases(address buyer, uint start, uint end) public view returns (Purchase[] memory) {
         require(start <= end, "Invalid range");
-        if (end > numPurchases) {
-            end = numPurchases;
-        }
+
         uint length = end - start + 1;
         Purchase[] memory _purchases = new Purchase[](length);
         uint j = 0;
@@ -109,9 +103,7 @@ contract Abscrow {
 
     function getSellerPurchases(address seller, uint start, uint end) public view returns (Purchase[] memory) {
         require(start <= end, "Invalid range");
-        if (end > numPurchases) {
-            end = numPurchases;
-        }
+
         uint length = end - start + 1;
         Purchase[] memory _purchases = new Purchase[](length);
         uint j = 0;
@@ -138,7 +130,7 @@ contract Abscrow {
     }
 
     // Function to issue a refund
-     function release(uint256 _purchaseId) external onlyBuyer(_purchaseId){ 
+function release(uint256 _purchaseId) external onlyBuyer(_purchaseId){ 
         require(!purchases[_purchaseId].isReleased, "Funds are already released");
         ECedi(ECEDI_ADDRESS).transfer(purchases[_purchaseId].seller, purchases[_purchaseId].amount);
         purchases[_purchaseId].isReleased = true;

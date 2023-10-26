@@ -128,6 +128,11 @@ const config: HardhatUserConfig = {
       apiKey: `${etherscanApiKey}`,
     },
   },
+  etherscan: {
+    apiKey:{
+      polygonMumbai: `${etherscanApiKey}`
+    }
+  }
 };
 
 export default config;
