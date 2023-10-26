@@ -1,8 +1,13 @@
 name: Lint
 
 on:
+  workflow_dispatch:
+   inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
   push:
-    branches:
+    branches:  
       - main
   pull_request:
     branches:
@@ -41,3 +46,6 @@ jobs:
 
       - name: Run hardhat lint
         run: yarn hardhat:lint --max-warnings=0
+
+      - name: Run Tests
+        run: cd packages/hardhat && npx hardhat coverage --network hardhat    
