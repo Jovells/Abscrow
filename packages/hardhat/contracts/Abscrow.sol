@@ -12,17 +12,29 @@ contract Abscrow {
 
 
     mapping(uint256 => Purchase) public purchases;
+    mapping(uint256 => Product) public products;
 
     uint256 public numPurchases;
 
     struct Purchase{
         uint256 purchaseId;
+        uint256 productId;
         address buyer;
         address seller;
         uint256 amount;
         bool isReleased;
         bool isShipped;
     }
+
+    struct Product{
+        uint256 productId;
+        address seller;
+        uint256 quantity;
+        uint256 price;
+        uint256 sales;
+    }
+
+
 
     modifier onlyOwner(){
         require(msg.sender == owner, "Only the Owner can perform this operation");
@@ -116,16 +128,39 @@ contract Abscrow {
     }
 
     // Function to purchase a product
- function purchaseProduct(uint256 _totalAmount, address _seller) public {
+ function purchaseProduct(uint256 _productId, uint256 _quantity, address _seller) public {
+        uint256 _totalAmount = products[_productId].price * _quantity;
 
        ECedi(ECEDI_ADDRESS).transferFrom(msg.sender, address(this), _totalAmount); 
 
         numPurchases++;
 
-        purchases[numPurchases] = Purchase(numPurchases, msg.sender, _seller, _totalAmount, false, false);
-        
+        purchases[numPurchases] = Purchase(numPurchases, _productId, msg.sender, _seller, _totalAmount, false, false);
+
         // Emit a purchase event
         emit Sale(msg.sender, numPurchases ,_totalAmount);
+    }
+    
+    function purchaseProduct(uint256 _productId, uint256 _quantity) public payable {
+        require(products[_productId].quantity >= _quantity, "Insufficient inventory or product does not exist");
+        uint256 totalPrice = products[_productId].price * _quantity;
+
+        ECedi(ECEDI_ADDRESS).transferFrom(msg.sender, address(this), totalPrice); 
+
+        numPurchases++;
+
+        
+        // Emit a purchase event
+        emit Sale(msg.sender, numPurchases, totalPrice);
+
+ 
+        // Update inventory and sales data
+        products[_productId].quantity -= _quantity;
+        products[_productId].sales += _quantity;
+        purchases[numPurchases] = Purchase(numPurchases, msg.sender, products[_productId].seller, totalPrice, false, false);
+        
+        // Emit a sale event
+        emit Sale(msg.sender, numPurchases, _productId, _quantity);
     }
 
     // Function to issue a refund
