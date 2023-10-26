@@ -106,6 +106,12 @@ The Abscrow smart contract is designed to facilitate secure and transparent peer
 
 The smart contract emits several events to log various transactions, including purchases, refunds, releases, and shipment confirmation. These events provide transparency and visibility into the contract's activities.
 
+## Testing
+`cd packages/hardhat`
+`npx hardhat coverage --network hardhat`
+
+
+
 
 
 
