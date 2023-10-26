@@ -1,3 +1,120 @@
+# Abscrow Smart Contract
+
+The Abscrow smart contract is designed to facilitate secure and transparent peer-to-peer product purchases while addressing the risks of fraudulent activities. This README provides an overview of the functions within the smart contract.
+
+## Functions
+
+### Constructor
+
+#### `constructor(address _ECEDI_ADDRESS)`
+
+- **Description:** The constructor initializes the smart contract with the owner's address and the address of the ECEDI token used for payments.
+
+- **Parameters:**
+  - `_ECEDI_ADDRESS`: The address of the ECEDI token contract.
+
+### Owner Management
+
+#### `onlyOwner()`
+
+- **Description:** A modifier that restricts certain functions to be executed only by the owner of the smart contract.
+
+### Buyer Management
+
+#### `onlyBuyer(uint256 purchaseId)`
+
+- **Description:** A modifier that restricts certain functions to be executed only by the buyer of a specific purchase.
+
+### Seller Management
+
+#### `onlySeller(uint256 purchaseId)`
+
+- **Description:** A modifier that restricts certain functions to be executed only by the seller of a specific purchase.
+
+### Purchase Information
+
+#### `getPurchases(uint start, uint end)`
+
+- **Description:** Retrieves an array of purchase information within a specified range.
+
+- **Parameters:**
+  - `start`: The starting index of the range.
+  - `end`: The ending index of the range.
+
+#### `getBuyerPurchases(address buyer, uint start, uint end)`
+
+- **Description:** Retrieves an array of purchase information for a specific buyer within a specified range.
+
+- **Parameters:**
+  - `buyer`: The address of the buyer.
+  - `start`: The starting index of the range.
+  - `end`: The ending index of the range.
+
+#### `getSellerPurchases(address seller, uint start, uint end)`
+
+- **Description:** Retrieves an array of purchase information for a specific seller within a specified range.
+
+- **Parameters:**
+  - `seller`: The address of the seller.
+  - `start`: The starting index of the range.
+  - `end`: The ending index of the range.
+
+### Purchase Management
+
+#### `purchaseProduct(uint256 _totalAmount, address _seller)`
+
+- **Description:** Allows a buyer to purchase a product by transferring the specified amount of ECEDI tokens to the smart contract. A purchase record is created.
+
+- **Parameters:**
+  - `_totalAmount`: The total amount of ECEDI tokens for the purchase.
+  - `_seller`: The address of the seller.
+
+### Release and Refund
+
+#### `release(uint256 _purchaseId)`
+
+- **Description:** Allows the buyer to release the funds held in escrow to the seller, indicating satisfaction with the product.
+
+- **Parameters:**
+  - `_purchaseId`: The ID of the purchase to release funds for.
+
+#### `releaseFor(uint256 _purchaseId)`
+
+- **Description:** Allows an authorised admin to release the funds held in escrow to the seller on behalf of the buyer. In practice this will be done after a dispute has been raised and arbitraion process is completed.
+
+- **Parameters:**
+  - `_purchaseId`: The ID of the purchase to release funds for.
+
+#### `refund(uint256 _purchaseId)`
+
+- **Description:** Allows the owner to initiate a refund to the buyer in case of disputes or issues with the product. In practice this will be done after a dispute has been raised and arbitraion process is completed
+
+
+- **Parameters:**
+  - `_purchaseId`: The ID of the purchase to issue a refund for.
+
+### Shipment Confirmation
+
+#### `markShipped(uint256 _purchaseId)`
+
+- **Description:** Allows the seller to mark a product as shipped, updating the status of the purchase.
+
+- **Parameters:**
+  - `_purchaseId`: The ID of the purchase to mark as shipped.
+
+## Events
+
+The smart contract emits several events to log various transactions, including purchases, refunds, releases, and shipment confirmation. These events provide transparency and visibility into the contract's activities.
+
+## Testing
+`cd packages/hardhat`
+`npx hardhat coverage --network hardhat`
+
+
+
+
+
+
 # 🏗 Scaffold-ETH 2
 
 🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
